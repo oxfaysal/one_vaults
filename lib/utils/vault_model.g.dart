@@ -32,23 +32,28 @@ const VaultSchema = CollectionSchema(
       name: r'iconUrl',
       type: IsarType.string,
     ),
-    r'password': PropertySchema(
+    r'note': PropertySchema(
       id: 3,
+      name: r'note',
+      type: IsarType.string,
+    ),
+    r'password': PropertySchema(
+      id: 4,
       name: r'password',
       type: IsarType.string,
     ),
     r'phone': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'phone',
       type: IsarType.string,
     ),
     r'siteUrl': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'siteUrl',
       type: IsarType.string,
     ),
     r'username': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'username',
       type: IsarType.string,
     )
@@ -92,6 +97,12 @@ int _vaultEstimateSize(
     }
   }
   {
+    final value = object.note;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.password;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -127,10 +138,11 @@ void _vaultSerialize(
   writer.writeString(offsets[0], object.brandName);
   writer.writeString(offsets[1], object.category);
   writer.writeString(offsets[2], object.iconUrl);
-  writer.writeString(offsets[3], object.password);
-  writer.writeString(offsets[4], object.phone);
-  writer.writeString(offsets[5], object.siteUrl);
-  writer.writeString(offsets[6], object.username);
+  writer.writeString(offsets[3], object.note);
+  writer.writeString(offsets[4], object.password);
+  writer.writeString(offsets[5], object.phone);
+  writer.writeString(offsets[6], object.siteUrl);
+  writer.writeString(offsets[7], object.username);
 }
 
 Vault _vaultDeserialize(
@@ -144,10 +156,11 @@ Vault _vaultDeserialize(
   object.category = reader.readStringOrNull(offsets[1]);
   object.iconUrl = reader.readStringOrNull(offsets[2]);
   object.id = id;
-  object.password = reader.readStringOrNull(offsets[3]);
-  object.phone = reader.readStringOrNull(offsets[4]);
-  object.siteUrl = reader.readStringOrNull(offsets[5]);
-  object.username = reader.readStringOrNull(offsets[6]);
+  object.note = reader.readStringOrNull(offsets[3]);
+  object.password = reader.readStringOrNull(offsets[4]);
+  object.phone = reader.readStringOrNull(offsets[5]);
+  object.siteUrl = reader.readStringOrNull(offsets[6]);
+  object.username = reader.readStringOrNull(offsets[7]);
   return object;
 }
 
@@ -171,6 +184,8 @@ P _vaultDeserializeProp<P>(
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
+      return (reader.readStringOrNull(offset)) as P;
+    case 7:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -751,6 +766,150 @@ extension VaultQueryFilter on QueryBuilder<Vault, Vault, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'note',
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'note',
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'note',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'note',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteMatches(String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'note',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'note',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterFilterCondition> noteIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'note',
+        value: '',
       ));
     });
   }
@@ -1379,6 +1538,18 @@ extension VaultQuerySortBy on QueryBuilder<Vault, Vault, QSortBy> {
     });
   }
 
+  QueryBuilder<Vault, Vault, QAfterSortBy> sortByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterSortBy> sortByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
   QueryBuilder<Vault, Vault, QAfterSortBy> sortByPassword() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'password', Sort.asc);
@@ -1477,6 +1648,18 @@ extension VaultQuerySortThenBy on QueryBuilder<Vault, Vault, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Vault, Vault, QAfterSortBy> thenByNote() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Vault, Vault, QAfterSortBy> thenByNoteDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'note', Sort.desc);
+    });
+  }
+
   QueryBuilder<Vault, Vault, QAfterSortBy> thenByPassword() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'password', Sort.asc);
@@ -1548,6 +1731,13 @@ extension VaultQueryWhereDistinct on QueryBuilder<Vault, Vault, QDistinct> {
     });
   }
 
+  QueryBuilder<Vault, Vault, QDistinct> distinctByNote(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'note', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Vault, Vault, QDistinct> distinctByPassword(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1599,6 +1789,12 @@ extension VaultQueryProperty on QueryBuilder<Vault, Vault, QQueryProperty> {
   QueryBuilder<Vault, String?, QQueryOperations> iconUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'iconUrl');
+    });
+  }
+
+  QueryBuilder<Vault, String?, QQueryOperations> noteProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'note');
     });
   }
 

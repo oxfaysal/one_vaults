@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:one_vaults/conts/Color.dart';
 import 'package:one_vaults/conts/TextStyle.dart';
 
+import 'utils/cardDesign.dart';
 import 'utils/input.dart';
 import 'utils/isar_service.dart';
 import 'utils/vault_model.dart';
@@ -21,11 +25,26 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final service = IsarService();
+  late VaultUIHelper uiHelper;
   String _searchQuery = "";
+
+  String _selectedCategory = "All";
 
   void _refreshData() {
     setState(() {});
   }
+
+  @override
+  void initState() {
+    super.initState();
+    // ২. ইনপুট প্যারামিটার দিয়ে ইনিশিয়ালাইজ করুন
+    uiHelper = VaultUIHelper(
+      context: context,
+      service: service, // আপনার IsarService
+      onRefresh: () => setState(() {}), // রিফ্রেশ লজিক
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,113 +54,37 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           decoration: BoxDecoration(gradient: APP_COLOR.topBG),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.only(
-                  left: 22,
-                  right: 22,
-                  top: 60,
-                  bottom: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Assalamualikum 😊",
-                          style: TEXT_STYLE.textWhite20,
-                        ),
-                        Text(
-                          "Welcome back again!",
-                          style: TEXT_STYLE.textWhite14,
-                        ),
-                      ],
-                    ),
-                    _iconItem(
-                      40,
-                      FontAwesomeIcons.gear,
-                      APP_COLOR.white,
-                      20,
-                      1,
-                      50,
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 12),
+              // ১. হেডার সেকশন (আসসালামু আলাইকুম)
+              _buildHeader(),
 
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
+                ),
                 decoration: BoxDecoration(
                   color: APP_COLOR.mainBG,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
                   ),
                 ),
                 child: Column(
                   children: [
+                    // ২. সার্চ বার (এটি FutureBuilder এর বাইরে থাকবে যাতে টাইপ করলে ডাটা ফিল্টার হয়)
                     inputField.formField(
                       _searchController,
-                      "Search you vaults",
+                      "Search your vaults",
                       Icons.search,
-                      (value) {
-                        setState(() {
-                          _searchQuery = value.toLowerCase();
-                        });
-                      },
+                      (value) =>
+                          setState(() => _searchQuery = value.toLowerCase()),
                       (value) {},
                     ),
 
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                    Row(
-                      spacing: 10,
-                      children: [
-                        _categoryItem(
-                          FontAwesomeIcons.link,
-                          "Browser",
-                          "18 Passwords",
-                        ),
-                        _categoryItem(
-                          FontAwesomeIcons.mobile,
-                          "Mobile APP",
-                          "12 Passwords",
-                        ),
-                        _categoryItem(
-                          FontAwesomeIcons.creditCard,
-                          "Payment",
-                          "12 Passwords",
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 16),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Recently Used",
-                          style: TEXT_STYLE.textNavyBlack16w700,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, "/allVault");
-                          },
-                          child: Text("See More", style: TEXT_STYLE.textGray10),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 16),
-
+                    // ৩. FutureBuilder শুরু (এটির ভেতরে ক্যাটাগরি এবং লিস্ট থাকবে)
                     FutureBuilder<List<Vault>>(
                       future: service.getAllVaults(),
                       builder: (context, snapshot) {
@@ -151,48 +94,108 @@ class _HomePageState extends State<HomePage> {
                             child: CircularProgressIndicator(),
                           );
                         }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(
-                            child: Text(
-                              "No vaults found",
-                              style: TEXT_STYLE.textGray10,
-                            ),
-                          );
-                        }
 
-                        // ব্র্যান্ড নেম অনুযায়ী লিস্ট ফিল্টার করা হচ্ছে
-                        final allVaults = snapshot.data!;
+                        final allVaults = snapshot.data ?? [];
+
+                        // ক্যাটাগরি অনুযায়ী ডাটা কাউন্ট করা
+                        int browserCount = allVaults
+                            .where((v) => v.category == "Browser")
+                            .length;
+                        int mobileCount = allVaults
+                            .where((v) => v.category == "Mobile")
+                            .length;
+                        int paymentCount = allVaults
+                            .where((v) => v.category == "Payment")
+                            .length;
+
+                        // লিস্ট ফিল্টারিং লজিক
                         final filteredVaults = allVaults.where((vault) {
-                          final name = vault.brandName?.toLowerCase() ?? "";
-                          return name.contains(_searchQuery);
+                          final matchesSearch =
+                              vault.brandName?.toLowerCase().contains(
+                                _searchQuery,
+                              ) ??
+                              true;
+                          final matchesCategory =
+                              _selectedCategory == "All" ||
+                              vault.category == _selectedCategory;
+                          return matchesSearch && matchesCategory;
                         }).toList();
 
-                        if (filteredVaults.isEmpty) {
-                          return Center(
-                            child: Text(
-                              "No matches found",
-                              style: TEXT_STYLE.textGray10,
+                        return Column(
+                          children: [
+                            // ৪. ক্যাটাগরি রো (কাউন্ট সহ)
+                            Row(
+                              spacing: 10,
+                              children: [
+                                _categoryItem(
+                                  FontAwesomeIcons.link,
+                                  "Browser",
+                                  "${browserCount.toString().padLeft(2, '0')} Items",
+                                  () {
+                                    setState(
+                                      () => _selectedCategory =
+                                          _selectedCategory == "Browser"
+                                          ? "All"
+                                          : "Browser",
+                                    );
+                                  },
+                                ),
+                                _categoryItem(
+                                  FontAwesomeIcons.mobile,
+                                  "Mobile",
+                                  "${mobileCount.toString().padLeft(2, '0')} Items",
+                                  () {
+                                    setState(
+                                      () => _selectedCategory =
+                                          _selectedCategory == "Mobile"
+                                          ? "All"
+                                          : "Mobile",
+                                    );
+                                  },
+                                ),
+                                _categoryItem(
+                                  FontAwesomeIcons.creditCard,
+                                  "Payment",
+                                  "${paymentCount.toString().padLeft(2, '0')} Items",
+                                  () {
+                                    setState(
+                                      () => _selectedCategory =
+                                          _selectedCategory == "Payment"
+                                          ? "All"
+                                          : "Payment",
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          );
-                        }
 
-                        return ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filteredVaults.length,
-                          itemBuilder: (context, index) {
-                            final item = filteredVaults[index];
-                            return _itemCard(
-                              item.iconUrl ?? "",
-                              item.brandName ?? "No Name",
-                              item.username ?? "",
-                              item.password ?? "",
-                            );
-                          },
+                            const SizedBox(height: 16),
+
+                            // ৫. রিসেন্টলি ইউজড হেডার
+                            _buildListHeader(),
+
+                            const SizedBox(height: 16),
+
+                            // ৬. ফিল্টার করা লিস্ট
+                            filteredVaults.isEmpty
+                                ? const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: Text("No matches found"),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: filteredVaults.length,
+                                    itemBuilder: (context, index) {
+                                      return uiHelper.buildVaultCard(filteredVaults[index]);
+                                    },
+                                  ),
+                          ],
                         );
-
-
                       },
                     ),
                   ],
@@ -202,34 +205,90 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      floatingActionButton: GestureDetector(
-        onTap: () async {
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: APP_COLOR.primary2Color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        onPressed: () async {
           var result = await Navigator.pushNamed(context, "/addVault");
-          if (result == true) {
-            _refreshData();
-          }
+          if (result == true) _refreshData();
         },
-        child: _iconItem(60, FontAwesomeIcons.add, APP_COLOR.white, 20, 1, 50),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _categoryItem(IconData icon, String title, String subtitle) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: APP_COLOR.white,
-          borderRadius: BorderRadius.circular(15),
+  // হেডার উইজেট
+  Widget _buildHeader() {
+    double topPadding =
+        (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+        ? 20
+        : 60;
+    return Container(
+      padding: EdgeInsets.only(
+        left: 22,
+        right: 22,
+        top: topPadding,
+        bottom: 16,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Assalamualikum 😊", style: TEXT_STYLE.textWhite20),
+              Text("Welcome back again!", style: TEXT_STYLE.textWhite14),
+            ],
+          ),
+          _iconItem(40, FontAwesomeIcons.gear, APP_COLOR.white, 20, 1, 50),
+        ],
+      ),
+    );
+  }
+
+  // লিস্ট হেডার
+  Widget _buildListHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text("Recently Used", style: TEXT_STYLE.textNavyBlack16w700),
+        InkWell(
+          onTap: () => Navigator.pushNamed(context, "/allVault"),
+          child: Text("See More", style: TEXT_STYLE.textGray10),
         ),
-        child: Column(
-          children: [
-            _iconItem(50, icon, APP_COLOR.primary2Color, 24, 0.1, 50),
-            SizedBox(height: 12),
-            Text(title, style: TEXT_STYLE.textNavyBlack14w700),
-            SizedBox(height: 4),
-            Text(subtitle, style: TEXT_STYLE.textGray10),
-          ],
+      ],
+    );
+  }
+
+  Widget _categoryItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
+    bool isSelected = _selectedCategory == title;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            color: APP_COLOR.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: isSelected ? APP_COLOR.primary2Color : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Column(
+            children: [
+              _iconItem(50, icon, APP_COLOR.primary2Color, 24, 0.1, 50),
+              SizedBox(height: 12),
+              Text(title, style: TEXT_STYLE.textNavyBlack14w700),
+              SizedBox(height: 4),
+              Text(subtitle, style: TEXT_STYLE.textGray10),
+            ],
+          ),
         ),
       ),
     );
@@ -256,95 +315,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _itemCard(
-    String iconUrl,
-    String brandName,
-    String username,
-    String password,
-  ) {
-    return Card(
-      color: APP_COLOR.white,
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          spacing: 10,
-          children: [
-            Container(
-              height: 55,
-              width: 55,
-              decoration: BoxDecoration(
-                color: APP_COLOR.mainBG,
-                borderRadius: BorderRadius.circular(16),
-                image: DecorationImage(
-                  image: NetworkImage(iconUrl),
-                  scale: 1.8,
-                  onError: (exception, stackTrace) =>
-                      CircularProgressIndicator(),
-                ),
-              ),
-            ),
-
-            Column(
-              spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(brandName, style: TEXT_STYLE.textNavyBlack16w700),
-                GestureDetector(
-                  onTap: () {
-                    _copyToClipboard(context, username);
-                  },
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Text(username, style: TEXT_STYLE.searchingTextBold),
-                      Icon(
-                        Icons.copy_rounded,
-                        size: 14,
-                        color: APP_COLOR.colorGray,
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    _copyToClipboard(context, password);
-                  },
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Text(password, style: TEXT_STYLE.searchingText),
-                      Icon(
-                        Icons.copy_rounded,
-                        size: 14,
-                        color: APP_COLOR.colorGray,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _copyToClipboard(BuildContext context, String text) {
-    Clipboard.setData(ClipboardData(text: text)).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Copied to clipboard",
-            style: TEXT_STYLE.textNavyBlack14w700,
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: APP_COLOR.white,
-          elevation: 0,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    });
-  }
+  
+  
 }

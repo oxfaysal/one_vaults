@@ -31,4 +31,11 @@ class IsarService {
     final isar = await db;
     return await isar.vaults.where().findAll();
   }
+
+  Future<void> deleteVault(int id) async {
+    final isar = await db;
+    await isar.writeTxn(() => isar.vaults.delete(id));
+  }
+
+
 }

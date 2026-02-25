@@ -13,4 +13,5 @@ class Vault {
   String? password;
   String? phone;
   String? category;
+  String? note;
 }
