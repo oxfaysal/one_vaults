@@ -1,0 +1,234 @@
+import 'package:flutter/material.dart';
+import 'package:one_vaults/utils/input.dart';
+import 'HomePage.dart';
+import 'conts/TextStyle.dart';
+import 'conts/Color.dart';
+import 'utils/isar_service.dart';
+import 'utils/vault_model.dart';
+
+class AddVaults extends StatefulWidget {
+  AddVaults({super.key});
+
+  @override
+  State<AddVaults> createState() => _AddVaultsState();
+}
+
+class _AddVaultsState extends State<AddVaults> {
+  final TextEditingController _urlController = TextEditingController();
+
+  final TextEditingController _userController = TextEditingController();
+
+  final TextEditingController _passController = TextEditingController();
+
+  final TextEditingController _phoneController = TextEditingController();
+
+  String getDomain(String url) {
+    if (url.isEmpty) return "";
+
+    // যদি ইউজার http না লেখে, তবে সেটি যোগ করে নিতে হবে
+    String formattedUrl = url.trim();
+    if (!formattedUrl.startsWith('http')) {
+      formattedUrl = 'https://$formattedUrl';
+    }
+
+    try {
+      var uri = Uri.parse(formattedUrl);
+      return uri.host; // যেমন: www.netflix.com
+    } catch (e) {
+      return "";
+    }
+  }
+
+  void _updateIcon(String value) {
+    String domain = getDomain(value);
+    String brandName = getBrandName(value);
+    if (domain.isNotEmpty) {
+      setState(() {
+        // আইকন আপডেট
+        iconUrl = "https://www.google.com/s2/favicons?sz=64&domain=$domain";
+
+        // ব্র্যান্ড নেম আপডেট এবং ক্যাপিটালাইজ করা
+        capitalizedBrand = brandName.isNotEmpty
+            ? brandName[0].toUpperCase() + brandName.substring(1)
+            : "";
+      });
+    }
+  }
+
+  String getBrandName(String url) {
+    if (url.isEmpty) return "";
+
+    String formattedUrl = url.trim().toLowerCase();
+    if (!formattedUrl.startsWith('http')) {
+      formattedUrl = 'https://$formattedUrl';
+    }
+
+    try {
+      var uri = Uri.parse(formattedUrl);
+      String host = uri.host; // আউটপুট আসবে: www.netflix.com বা netflix.com
+
+      // এবার www. এবং .com অংশগুলো বাদ দেওয়ার পালা
+      List<String> parts = host.split('.');
+
+      if (parts.length >= 2) {
+        // যদি www থাকে (www.netflix.com), তবে ২য় অংশটি নিবে (netflix)
+        if (parts[0] == 'www') {
+          return parts[1];
+        } else {
+          // যদি www না থাকে (netflix.com), তবে ১ম অংশটি নিবে (netflix)
+          return parts[0];
+        }
+      }
+      return host;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  String selectedCategory = 'Browser';
+  List<String> categories = ['Browser', 'Mobile', 'Payment'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: APP_COLOR.mainBG,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(top: 60, left: 16, right: 16),
+        child: Column(
+          children: [
+            Row(
+              spacing: 30,
+              children: [
+                Container(
+                  decoration:BoxDecoration(
+                    color: APP_COLOR.white,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: IconButton(onPressed: (){
+                    Navigator.pop(context);
+                  }, icon: Icon(Icons.arrow_back)),
+                ),
+                Text("Create  New Vaults", style: TEXT_STYLE.textNavyBlack20w500,)
+              ],
+            ),
+
+            SizedBox(height: 22,),
+
+            Container(
+              height: 55,
+              width: 55,
+              decoration: BoxDecoration(
+                color: APP_COLOR.white,
+                borderRadius: BorderRadius.circular(100),
+                image: DecorationImage(
+                  image: NetworkImage(iconUrl),scale: 1.8,
+                  onError: (exception, stackTrace) => CircularProgressIndicator(),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 22,),
+
+            Container(
+              decoration: BoxDecoration(
+                color: APP_COLOR.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Credential", style: TEXT_STYLE.textNavyBlack16w700,),
+                  SizedBox(height: 24,),
+
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: "Select Category",
+                      prefixIcon: Icon(Icons.category, color: APP_COLOR.colorGray),
+                      filled: true,
+                      fillColor: APP_COLOR.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: APP_COLOR.colorGray.withOpacity(0.2)),
+                      ),
+                    ),
+                    items: categories.map((String category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedCategory = newValue!;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 22,),
+                  inputField.formField(_urlController, "Site Address", Icons.link, (value){
+                    setState(() {
+                      _updateIcon(value);
+                    });
+                  }, (value){}),
+                  SizedBox(height: 22,),
+                  inputField.formField(_userController, "User Name", Icons.person, (value){}, (value){}),
+                  SizedBox(height: 22,),
+                  inputField.formField(_passController, "Password", Icons.lock, (value){}, (value){}),
+                  SizedBox(height: 22,),
+                  inputField.formField(_phoneController, "Phone Number (Optional)", Icons.call, (value){}, (value){}),
+
+
+
+                ],
+              ),
+            ),
+
+            SizedBox(height: 30,),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_urlController.text.isNotEmpty) {
+                      final service = IsarService();
+
+                      // ডোমেইন এবং ব্র্যান্ড বের করা
+                      String domain = getDomain(_urlController.text);
+                      String brand = getBrandName(_urlController.text);
+
+                      final newVault = Vault()
+                        ..siteUrl = _urlController.text
+                        ..brandName = brand.isNotEmpty ? brand[0].toUpperCase() + brand.substring(1) : "Unknown"
+                        ..iconUrl = "https://www.google.com/s2/favicons?sz=64&domain=$domain"
+                        ..username = _userController.text
+                        ..password = _passController.text
+                        ..phone = _phoneController.text
+                        ..category = selectedCategory;
+
+                      await service.saveVault(newVault);
+
+                      // সেভ সফল হলে true নিয়ে ব্যাক করবে
+                      Navigator.pop(context, true);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: APP_COLOR.primary2Color, foregroundColor: APP_COLOR.white),
+                  child: Text("Create the vault", style: TEXT_STYLE.textWhite14,),
+                ),
+              ),
+            ),
+
+
+
+
+          ],
+        ),
+      ),
+    );
+  }
+}
