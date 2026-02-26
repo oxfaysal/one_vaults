@@ -116,7 +116,7 @@ class _AddVaultsState extends State<AddVaults> {
       backgroundColor: APP_COLOR.mainBG,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        title: Text(existingVault == null ? "Create new vault" : "Update old vault", style: TEXT_STYLE.textNavyBlack20w500),
+        title: Text(existingVault == null ? "Create new vault" : "Update vault", style: TEXT_STYLE.textNavyBlack20w500),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -176,6 +176,7 @@ class _AddVaultsState extends State<AddVaults> {
                     value: selectedCategory,
                     decoration: InputDecoration(
                       labelText: "Select Category",
+                      labelStyle: TEXT_STYLE.searchingText,
                       prefixIcon: Icon(Icons.category, color: APP_COLOR.colorGray),
                       filled: true,
                       fillColor: APP_COLOR.white,
@@ -183,6 +184,11 @@ class _AddVaultsState extends State<AddVaults> {
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide(color: APP_COLOR.colorGray.withOpacity(0.2)),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: APP_COLOR.primary2Color.withOpacity(0.2)),
+                      ),
+
                     ),
                     items: categories.map((String category) {
                       return DropdownMenuItem(
@@ -245,7 +251,27 @@ class _AddVaultsState extends State<AddVaults> {
                         vaultToSave.id = existingVault!.id;
                       }
                       await service.saveVault(vaultToSave);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              existingVault == null
+                                  ? "Vault created successfully!"
+                                  : "Vault updated successfully!",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: existingVault != null ? APP_COLOR.primary2Color : Colors.blueAccent, // সফল হলে সবুজ রঙ
+                          ),
+                        );
+                      }
+
+                      // ব্যাক করা
                       Navigator.pop(context, true);
+                    } else {
+                      // যদি সাইট অ্যাড্রেস খালি থাকে তবে ওয়ার্নিং
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please enter a site address")),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(

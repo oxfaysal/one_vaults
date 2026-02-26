@@ -45,7 +45,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,7 +190,9 @@ class _HomePageState extends State<HomePage> {
                                         const NeverScrollableScrollPhysics(),
                                     itemCount: filteredVaults.length,
                                     itemBuilder: (context, index) {
-                                      return uiHelper.buildVaultCard(filteredVaults[index]);
+                                      return uiHelper.buildVaultCard(
+                                        filteredVaults[index],
+                                      );
                                     },
                                   ),
                           ],
@@ -240,7 +241,19 @@ class _HomePageState extends State<HomePage> {
               Text("Welcome back again!", style: TEXT_STYLE.textWhite14),
             ],
           ),
-          _iconItem(40, FontAwesomeIcons.gear, APP_COLOR.white, 20, 1, 50),
+          InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, "/settings");
+            },
+            child: _iconItem(
+              40,
+              FontAwesomeIcons.gear,
+              APP_COLOR.white,
+              20,
+              1,
+              50,
+            ),
+          ),
         ],
       ),
     );
@@ -314,7 +327,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  
-  
 }

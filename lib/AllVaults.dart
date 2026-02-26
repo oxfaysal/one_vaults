@@ -76,7 +76,6 @@ class _AllVaultsPageState extends State<AllVaultsPage> {
             ),
           ),
 
-          // ২. ক্যাটাগরি ফিল্টার চিপস
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

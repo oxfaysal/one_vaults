@@ -257,8 +257,8 @@ class VaultUIHelper {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: APP_COLOR.mainBG,
-                          foregroundColor: APP_COLOR.primary2Color,
+                          backgroundColor: APP_COLOR.secondaryColor,
+                          foregroundColor: APP_COLOR.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         ),
                         onPressed: () => Navigator.pop(context),

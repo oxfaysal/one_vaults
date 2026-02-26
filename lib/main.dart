@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:one_vaults/AddVaults.dart';
 import 'package:one_vaults/AllVaults.dart';
+import 'package:one_vaults/PinLockScreen.dart';
+import 'package:one_vaults/SettingsPage.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'HomePage.dart';
@@ -38,9 +40,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "One Vaults",
       routes: {
-        "/" : (context) => HomePage(),
+        "/" : (context) => PinLockScreen(),
         "/addVault" : (context) => AddVaults(),
         "/allVault" : (context) => AllVaultsPage(),
+        "/settings" : (context) => Settings(),
       },
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
