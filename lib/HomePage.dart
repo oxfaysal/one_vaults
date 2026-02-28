@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:one_vaults/conts/Color.dart';
 import 'package:one_vaults/conts/TextStyle.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'utils/cardDesign.dart';
 import 'utils/input.dart';
@@ -54,7 +55,66 @@ class _HomePageState extends State<HomePage> {
           decoration: BoxDecoration(gradient: APP_COLOR.topBG),
           child: Column(
             children: [
-              // ১. হেডার সেকশন (আসসালামু আলাইকুম)
+
+              if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux))
+                DragToMoveArea(
+                  child: Container(
+                    height: 38, // একটু চিকন করলে বেশি মডার্ন লাগে
+                    padding: const EdgeInsets.only(left: 16, right: 4), // ডানপাশে বাটনের জন্য প্যাডিং কম
+                    decoration: BoxDecoration(
+                      color: Colors.transparent, // হালকা ট্রান্সপারেন্ট ডার্ক
+                      border: const Border(
+                        bottom: BorderSide(color: Colors.white10, width: 0.8),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // লোগো এবং টাইটেল সেকশন
+                        Container(
+                          width: 28,  // একটি নির্দিষ্ট সাইজ দিলে দেখতে ইউনিফর্ম লাগে
+                          height: 28,
+                          padding: const EdgeInsets.all(6), // আইকনের চারপাশে একটু শ্বাস নেওয়ার জায়গা
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1), // হালকা একটু বেশি অপাসিটি মডার্ন দেখায়
+                            borderRadius: BorderRadius.circular(8), // উইন্ডোজ ১১ স্টাইল কার্ভ
+                            border: Border.all(
+                                color: APP_COLOR.primary2Color.withOpacity(0.2),
+                                width: 0.5
+                            ),
+                          ),
+                          child: Image.asset(
+                            "assets/icon/tray_icon.png",
+                            fit: BoxFit.contain, // ইমেজ যেন ফেটে না যায় বা কেটে না যায়
+                            filterQuality: FilterQuality.high, // ডেস্কটপে আইকন শার্প দেখাবে
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "One Vaults",
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const Spacer(),
+
+                        // উইন্ডোজ কন্ট্রোল বাটন (মডার্ন স্টাইল)
+                        WindowCaptionButton.minimize(
+                          brightness: Brightness.dark,
+                          onPressed: () => windowManager.minimize(),
+                        ),
+                        // ক্লোজ বাটনে একটু লালচে আভা থাকে যা নেটিভ ফিল দেয়
+                        WindowCaptionButton.close(
+                          brightness: Brightness.dark,
+                          onPressed: () => windowManager.close(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
               _buildHeader(),
 
               Container(
