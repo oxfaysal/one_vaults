@@ -15,3 +15,13 @@ class Vault {
   String? category;
   String? note;
 }
+
+
+@collection
+class MediaVault {
+  Id id = Isar.autoIncrement;
+  late String filePath; // এনক্রিপ্টেড বা হিডেন পাথ
+  late String fileName;
+  late String fileType; // 'photo', 'video', 'audio', 'file'
+  late DateTime dateAdded;
+}

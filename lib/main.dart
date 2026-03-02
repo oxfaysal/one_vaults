@@ -8,6 +8,8 @@ import 'package:one_vaults/SettingsPage.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'MediaPage/MediaPage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -57,7 +59,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
       windowManager.addListener(this);
       initSystemTray();
     }
-    _resetAutoLockTimer(); // অ্যাপ শুরুতেই টাইমার শুরু হবে
+    _resetAutoLockTimer();
+
   }
 
   @override
@@ -155,6 +158,15 @@ class _MyAppState extends State<MyApp> with WindowListener {
           "/addVault": (context) => AddVaults(),
           "/allVault": (context) => AllVaultsPage(),
           "/settings": (context) => Settings(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == "/mediaGallery") {
+            final String type = settings.arguments as String; // আর্গুমেন্ট থেকে টাইপ নিন
+            return MaterialPageRoute(
+              builder: (context) => MediaGalleryPage(type: type),
+            );
+          }
+          return null;
         },
         initialRoute: '/',
         debugShowCheckedModeBanner: false,

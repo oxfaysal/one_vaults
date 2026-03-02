@@ -13,7 +13,7 @@ class IsarService {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
-        [VaultSchema],
+        [VaultSchema, MediaVaultSchema],
         directory: dir.path,
       );
     }

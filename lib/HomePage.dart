@@ -8,6 +8,7 @@ import 'package:one_vaults/conts/Color.dart';
 import 'package:one_vaults/conts/TextStyle.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'MediaPage/MediaPage.dart';
 import 'utils/cardDesign.dart';
 import 'utils/input.dart';
 import 'utils/isar_service.dart';
@@ -56,11 +57,14 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
 
-              if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux))
+              if (!kIsWeb &&
+                  (Platform.isWindows || Platform.isMacOS || Platform.isLinux))
                 DragToMoveArea(
                   child: Container(
-                    height: 38, // একটু চিকন করলে বেশি মডার্ন লাগে
-                    padding: const EdgeInsets.only(left: 16, right: 4), // ডানপাশে বাটনের জন্য প্যাডিং কম
+                    height: 38,
+                    // একটু চিকন করলে বেশি মডার্ন লাগে
+                    padding: const EdgeInsets.only(left: 16, right: 4),
+                    // ডানপাশে বাটনের জন্য প্যাডিং কম
                     decoration: BoxDecoration(
                       color: Colors.transparent, // হালকা ট্রান্সপারেন্ট ডার্ক
                       border: const Border(
@@ -71,12 +75,16 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         // লোগো এবং টাইটেল সেকশন
                         Container(
-                          width: 28,  // একটি নির্দিষ্ট সাইজ দিলে দেখতে ইউনিফর্ম লাগে
+                          width: 28,
+                          // একটি নির্দিষ্ট সাইজ দিলে দেখতে ইউনিফর্ম লাগে
                           height: 28,
-                          padding: const EdgeInsets.all(6), // আইকনের চারপাশে একটু শ্বাস নেওয়ার জায়গা
+                          padding: const EdgeInsets.all(6),
+                          // আইকনের চারপাশে একটু শ্বাস নেওয়ার জায়গা
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1), // হালকা একটু বেশি অপাসিটি মডার্ন দেখায়
-                            borderRadius: BorderRadius.circular(8), // উইন্ডোজ ১১ স্টাইল কার্ভ
+                            color: Colors.white.withOpacity(0.1),
+                            // হালকা একটু বেশি অপাসিটি মডার্ন দেখায়
+                            borderRadius: BorderRadius.circular(8),
+                            // উইন্ডোজ ১১ স্টাইল কার্ভ
                             border: Border.all(
                                 color: APP_COLOR.primary2Color.withOpacity(0.2),
                                 width: 0.5
@@ -84,8 +92,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Image.asset(
                             "assets/icon/tray_icon.png",
-                            fit: BoxFit.contain, // ইমেজ যেন ফেটে না যায় বা কেটে না যায়
-                            filterQuality: FilterQuality.high, // ডেস্কটপে আইকন শার্প দেখাবে
+                            fit: BoxFit.contain,
+                            // ইমেজ যেন ফেটে না যায় বা কেটে না যায়
+                            filterQuality: FilterQuality
+                                .high, // ডেস্কটপে আইকন শার্প দেখাবে
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -136,14 +146,29 @@ class _HomePageState extends State<HomePage> {
                       _searchController,
                       "Search your vaults",
                       Icons.search,
-                      (value) =>
+                          (value) =>
                           setState(() => _searchQuery = value.toLowerCase()),
-                      (value) {},
+                          (value) {},
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 22),
 
-                    // ৩. FutureBuilder শুরু (এটির ভেতরে ক্যাটাগরি এবং লিস্ট থাকবে)
+                    _buildMediaGrid(
+                      onPhotosTap: () {
+                        Navigator.pushNamed(context, "/mediaGallery", arguments: "Photos");
+                      },
+                      onVideosTap: () {
+                        Navigator.pushNamed(context, "/mediaGallery", arguments: "Videos");
+                      },
+                      onAudioTap: () {
+                        Navigator.pushNamed(context, "/mediaGallery", arguments: "Audio");
+                      },
+                      onFilesTap: () {
+                        Navigator.pushNamed(context, "/mediaGallery", arguments: "Files");
+                      },
+                    ),
+
+                    const SizedBox(height: 26),
                     FutureBuilder<List<Vault>>(
                       future: service.getAllVaults(),
                       builder: (context, snapshot) {
@@ -173,10 +198,10 @@ class _HomePageState extends State<HomePage> {
                               vault.brandName?.toLowerCase().contains(
                                 _searchQuery,
                               ) ??
-                              true;
+                                  true;
                           final matchesCategory =
                               _selectedCategory == "All" ||
-                              vault.category == _selectedCategory;
+                                  vault.category == _selectedCategory;
                           return matchesSearch && matchesCategory;
                         }).toList();
 
@@ -189,11 +214,13 @@ class _HomePageState extends State<HomePage> {
                                 _categoryItem(
                                   FontAwesomeIcons.link,
                                   "Browser",
-                                  "${browserCount.toString().padLeft(2, '0')} Items",
-                                  () {
+                                  "${browserCount.toString().padLeft(
+                                      2, '0')} Items",
+                                      () {
                                     setState(
-                                      () => _selectedCategory =
-                                          _selectedCategory == "Browser"
+                                          () =>
+                                      _selectedCategory =
+                                      _selectedCategory == "Browser"
                                           ? "All"
                                           : "Browser",
                                     );
@@ -202,11 +229,13 @@ class _HomePageState extends State<HomePage> {
                                 _categoryItem(
                                   FontAwesomeIcons.mobile,
                                   "Mobile",
-                                  "${mobileCount.toString().padLeft(2, '0')} Items",
-                                  () {
+                                  "${mobileCount.toString().padLeft(
+                                      2, '0')} Items",
+                                      () {
                                     setState(
-                                      () => _selectedCategory =
-                                          _selectedCategory == "Mobile"
+                                          () =>
+                                      _selectedCategory =
+                                      _selectedCategory == "Mobile"
                                           ? "All"
                                           : "Mobile",
                                     );
@@ -215,11 +244,13 @@ class _HomePageState extends State<HomePage> {
                                 _categoryItem(
                                   FontAwesomeIcons.creditCard,
                                   "Payment",
-                                  "${paymentCount.toString().padLeft(2, '0')} Items",
-                                  () {
+                                  "${paymentCount.toString().padLeft(
+                                      2, '0')} Items",
+                                      () {
                                     setState(
-                                      () => _selectedCategory =
-                                          _selectedCategory == "Payment"
+                                          () =>
+                                      _selectedCategory =
+                                      _selectedCategory == "Payment"
                                           ? "All"
                                           : "Payment",
                                     );
@@ -238,23 +269,23 @@ class _HomePageState extends State<HomePage> {
                             // ৬. ফিল্টার করা লিস্ট
                             filteredVaults.isEmpty
                                 ? const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: Text("No matches found"),
-                                    ),
-                                  )
+                              child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Text("No matches found"),
+                              ),
+                            )
                                 : ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: filteredVaults.length,
-                                    itemBuilder: (context, index) {
-                                      return uiHelper.buildVaultCard(
-                                        filteredVaults[index],
-                                      );
-                                    },
-                                  ),
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics:
+                              const NeverScrollableScrollPhysics(),
+                              itemCount: filteredVaults.length,
+                              itemBuilder: (context, index) {
+                                return uiHelper.buildVaultCard(
+                                  filteredVaults[index],
+                                );
+                              },
+                            ),
                           ],
                         );
                       },
@@ -281,7 +312,7 @@ class _HomePageState extends State<HomePage> {
   // হেডার উইজেট
   Widget _buildHeader() {
     double topPadding =
-        (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+    (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux)
         ? 20
         : 60;
     return Container(
@@ -319,6 +350,60 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildMediaGrid({
+    required VoidCallback onPhotosTap,
+    required VoidCallback onVideosTap,
+    required VoidCallback onFilesTap,
+    required VoidCallback onAudioTap,
+  }) {
+    return GridView.count(
+      shrinkWrap: true,
+      crossAxisCount: 4,
+      mainAxisSpacing: 15,
+      crossAxisSpacing: 15,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _mediaItem(
+            FontAwesomeIcons.solidImage, "Photos", Colors.blue, onPhotosTap),
+        _mediaItem(FontAwesomeIcons.video, "Videos", Colors.red, onVideosTap),
+        _mediaItem(FontAwesomeIcons.music, "Audio", Colors.purple, onAudioTap),
+        _mediaItem(
+            FontAwesomeIcons.fileLines, "Files", Colors.orange, onFilesTap),
+      ],
+    );
+  }
+
+  Widget _mediaItem(IconData icon, String label, Color color,
+      VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      // ক্লিক করার সময় সুন্দর রাউন্ডেড শেপ হবে
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: color.withOpacity(0.05), width: 1),
+              ),
+              child: Icon(icon, color: color, size: 22),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+              label,
+              style: const TextStyle(fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87)
+          ),
+        ],
+      ),
+    );
+  }
+
   // লিস্ট হেডার
   Widget _buildListHeader() {
     return Row(
@@ -333,48 +418,76 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _categoryItem(
-    IconData icon,
-    String title,
-    String subtitle,
-    VoidCallback onTap,
-  ) {
+  Widget _categoryItem(IconData icon,
+      String title,
+      String subtitle, // এখানে আপনি আইটেম সংখ্যা পাঠাচ্ছেন (যেমন: "05 Items")
+      VoidCallback onTap,) {
     bool isSelected = _selectedCategory == title;
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          decoration: BoxDecoration(
-            color: APP_COLOR.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: isSelected ? APP_COLOR.primary2Color : Colors.transparent,
-              width: 2,
+        borderRadius: BorderRadius.circular(15),
+        child: Column(
+          children: [
+            // উপরের বক্সটি (আইকন কন্টেইনার)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 60,
+              // ফিক্সড হাইট দিলে সবগুলো ইউনিফর্ম দেখাবে
+              width: double.infinity,
+              decoration: BoxDecoration(
+                // সিলেক্ট হলে সলিড কালার, না হলে খুব হালকা শেড
+                color: isSelected
+                    ? APP_COLOR.primary2Color
+                    : APP_COLOR.primary2Color.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(
+                  color: isSelected ? APP_COLOR.primary2Color : Colors.black
+                      .withOpacity(0.03),
+                  width: 1,
+                ),
+              ),
+              child: Center(
+                child: FaIcon(
+                  icon,
+                  color: isSelected ? Colors.white : APP_COLOR.primary2Color,
+                  size: 20,
+                ),
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              _iconItem(50, icon, APP_COLOR.primary2Color, 24, 0.1, 50),
-              SizedBox(height: 12),
-              Text(title, style: TEXT_STYLE.textNavyBlack14w700),
-              SizedBox(height: 4),
-              Text(subtitle, style: TEXT_STYLE.textGray10),
-            ],
-          ),
+            const SizedBox(height: 8),
+            // টেক্সট সেকশন
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle, // আপনার "02 Items" লেখাটি এখানে ছোট করে দেখাবে
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? APP_COLOR.primary2Color : Colors.grey
+                    .shade500,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _iconItem(
-    double size,
-    IconData icon,
-    Color iconColor,
-    double iconSize,
-    double bgOpacity,
-    double radius,
-  ) {
+  Widget _iconItem(double size,
+      IconData icon,
+      Color iconColor,
+      double iconSize,
+      double bgOpacity,
+      double radius,) {
     return Container(
       width: size,
       height: size,
